@@ -31,6 +31,9 @@ const gameController = (function(){
                 if (board.getBoard()[index] === undefined){
                     board.setBoard(players[currentPlayer].getSymbol(), index);
                     board.render();
+                    field.children[0].color = players[currentPlayer].getColor();
+                    field.children[0].style.color = players[currentPlayer].getColor();
+    
                     currentPlayer++;
                     currentPlayer%=2;
                 }
