@@ -29,7 +29,38 @@
     margin-bottom: 10%;
 }
 
+#play-btn{
+    margin: 0 auto;
+    display: block;
+    font-size: 300%;
+    padding: 1% 4%;
+    transition: 0.2s;
+    outline: none;
+    border: none;
+}
+#play-btn:hover{
+    background-color: #444;
+    color: #eee;
+}
+#play-btn:active{
+    transform: scale(1.1);
+}
+
 h1{
     font: 900% "Lucida Console", sans-serif;
+    text-align: center;
+    margin:2%;
+}
+
+#player-input{
+    margin-bottom: 4%;
+    text-align: center;
+
+}
+#player-input input{
+    margin-right: 11%;
+    margin-left: 11%;
+    font-size: 150%;
+    display: inline-block;
     text-align: center;
 }

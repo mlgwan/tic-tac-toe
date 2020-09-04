@@ -1,3 +1,5 @@
+
+
 const gameBoard = (function(){
     let board = [];
     const boardSize = 9;
@@ -74,32 +76,41 @@ const gameBoard = (function(){
 
 const gameController = (function(){
 
+    let currentPlayer;
+    let finishedGame;
 
     const startGame = (player1, player2, board)=>{
+        currentPlayer = 0;
+        finishedGame = false;
         const fields = Array.from(document.querySelectorAll(".field"));
         const players = [player1, player2];
         board.initBoard();
-        let currentPlayer = 0;
-        fields.forEach((field, index)=>{
-            field.addEventListener("click", ()=>{
-                if (board.getBoard()[index] === ""){
-                    board.setBoard(players[currentPlayer].getSymbol(), index);
-                    board.render();
-                    board.decrementEmptyFields();
-                    field.children[0].style.color = players[currentPlayer].getColor();
-                    if(board.checkForGameOver() === "win"){
-                        alert(players[currentPlayer].getName() +" (" + players[currentPlayer].getSymbol() + ") has won!");
-                    }
-                    else if (board.checkForGameOver() === "draw"){
-                        alert("It's a draw!");
-                    }
-                    currentPlayer++;
-                    currentPlayer%=2;
-                }
-                
+        board.render();
 
-            })
-        })
+        fields.forEach((field, index)=>{
+            field.addEventListener("click", ()=>markField(field, board, players[currentPlayer], index));
+        });
+    }
+
+    const markField = (field, board, player, index) =>{
+        if (board.getBoard()[index] === "" && !finishedGame){
+            board.setBoard(player.getSymbol(), index);
+            board.render();
+            board.decrementEmptyFields();
+            field.children[0].style.color = player.getColor();
+            if(board.checkForGameOver() === "win"){
+                alert(player.getName() +" (" + player.getSymbol() + ") has won!");
+                finishedGame = true;
+                displayController.setup();
+            }
+            else if (board.checkForGameOver() === "draw"){
+                alert("It's a draw!");
+                finishedGame = true;
+                displayController.setup();
+            }
+            currentPlayer++;
+            currentPlayer%=2;
+        }
     }
 
 
@@ -113,13 +124,41 @@ const playerFactory = (function(name, color, symbol){
     const getName = ()=>name;
     const getColor = ()=>color;
     const getSymbol = ()=>symbol;
+
+    const setName = (newName)=>name = newName;
     return {
         getName,
         getColor,
-        getSymbol
+        getSymbol,
+        setName
     }
 });
 
-const player1 = playerFactory("Player1", "#F00", "x");
-const player2 = playerFactory("Player2", "#00F", "o");
-gameController.startGame(player1, player2, gameBoard);
+const displayController = (function(){
+    const player1 = playerFactory("Player1", "#F00", "x");
+    const player2 = playerFactory("Player2", "#00F", "o");
+    const startBtn = document.getElementById("play-btn");
+    const playerInput = document.getElementById("player-input");
+    console.log(playerInput);
+
+    const setup = ()=> {
+        setStartButtonText("Start");
+        startBtn.addEventListener("click", ()=>{
+            player1.setName(playerInput.children[0].value);
+            player2.setName(playerInput.children[1].value);
+            setStartButtonText("Restart");
+            gameController.startGame(player1, player2, gameBoard);
+        });
+    }
+
+    const setStartButtonText=(text)=>{
+        startBtn.textContent = text;
+    }
+
+    return{
+        setup
+    }
+})();
+
+
+displayController.setup();
