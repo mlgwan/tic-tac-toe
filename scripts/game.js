@@ -99,12 +99,12 @@ const gameController = (function(){
             board.decrementEmptyFields();
             field.children[0].style.color = player.getColor();
             if(board.checkForGameOver() === "win"){
-                alert(player.getName() +" (" + player.getSymbol() + ") has won!");
+                displayController.displayGameOver(player);
                 finishedGame = true;
                 displayController.setup();
             }
             else if (board.checkForGameOver() === "draw"){
-                alert("It's a draw!");
+                displayController.displayGameOver();
                 finishedGame = true;
                 displayController.setup();
             }
@@ -148,6 +148,7 @@ const displayController = (function(){
             player2.setName(playerInput.children[1].value);
             setStartButtonText("Restart");
             gameController.startGame(player1, player2, gameBoard);
+            clearGameOverAlerts();
         });
     }
 
@@ -155,9 +156,35 @@ const displayController = (function(){
         startBtn.textContent = text;
     }
 
-    return{
-        setup
+    const displayGameOver = (winner = null)=>{
+        const alert = document.createElement("div");
+        if (!winner){
+            alert.className = "alert draw";
+            alert.appendChild(document.createTextNode("It's a draw!"))
+            
+        }
+        else {
+            alert.className = "alert winner";
+            alert.appendChild(document.createTextNode(`${winner.getName()} (${winner.getSymbol()}) won!`));
+            alert.style.background = winner.getColor();
+        }
+        
+        document.body.insertBefore(alert, document.getElementById("board"));
+        
     }
+
+    const clearGameOverAlerts = ()=>{
+        if(document.querySelector(".alert")){
+            document.querySelector(".alert").remove();
+        }
+    }
+
+    return{
+        setup,
+        displayGameOver
+    }
+
+
 })();
 
 

@@ -1,3 +1,23 @@
+body{
+    font-family: "Lucida Console",sans-serif;
+}
+
+h1{
+    font-size: 900%;
+    text-align: center;
+    margin:2%;
+}
+
+.field{
+    display: flex;
+    width: 32%;
+    height: 32%;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 0.4em solid black;
+    border-right: 0.4em solid black;
+}
+
 #board{
     display: flex;
     flex-flow: row wrap;
@@ -8,15 +28,7 @@
     border-top: 0.4em solid black;
 }
 
-.field{
-    display: flex;
-    width: 32.14%;
-    height: 32.5%;
-    justify-content: center;
-    align-items: center;
-    border-bottom: 0.4em solid black;
-    border-right: 0.4em solid black;
-}
+
 
 .symbol{
     width: 100%;
@@ -25,7 +37,6 @@
     justify-content: center;
     align-items: center;
     font-size: 8em;
-    font-family: "Lucida Console",sans-serif;
     margin-bottom: 10%;
 }
 
@@ -46,12 +57,6 @@
     transform: scale(1.1);
 }
 
-h1{
-    font: 900% "Lucida Console", sans-serif;
-    text-align: center;
-    margin:2%;
-}
-
 #player-input{
     margin-bottom: 4%;
     text-align: center;
@@ -63,4 +68,15 @@ h1{
     font-size: 150%;
     display: inline-block;
     text-align: center;
+}
+
+.alert, .draw{
+    padding: 5px;
+    margin: 5px 0 15px 0;
+    color:white;
+    font-size: 150%;
+    text-align: center;
+}
+.draw{
+    background: gray;
 }
