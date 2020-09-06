@@ -80,6 +80,7 @@ const gameController = (function(){
     let finishedGame;
 
     const startGame = (player1, player2, board)=>{
+
         currentPlayer = 0;
         finishedGame = false;
         const fields = Array.from(document.querySelectorAll(".field"));
@@ -87,9 +88,22 @@ const gameController = (function(){
         board.initBoard();
         board.render();
 
-        fields.forEach((field, index)=>{
-            field.addEventListener("click", ()=>markField(field, board, players[currentPlayer], index));
-        });
+        if (!player2.getIsBot()){
+
+            fields.forEach((field, index)=>{
+                field.addEventListener("click", ()=>markField(field, board, players[currentPlayer], index));
+            });
+        }
+        else{
+            if (player2.getName() === "CPU"){
+                fields.forEach((field, index)=>{
+                    field.addEventListener("click", ()=>{
+                        markField(field, board, players[0], index);
+                        markField(field, board, players[1], players[1].randomCpuMove(fields))});
+                });
+            }
+        }
+
     }
 
     const markField = (field, board, player, index) =>{
@@ -113,43 +127,86 @@ const gameController = (function(){
         }
     }
 
-
-
     return {
         startGame
     }
 })();
 
-const playerFactory = (function(name, color, symbol){
+const playerFactory = (function(name, color, symbol, isBot){
     const getName = ()=>name;
     const getColor = ()=>color;
     const getSymbol = ()=>symbol;
+    const getIsBot = ()=>isBot;
 
     const setName = (newName)=>name = newName;
+
+    const randomCpuMove = (fields)=>{
+        let unoccupiedFields = [];
+        for (let i = 0; i < fields.length; i++){
+            if (fields[i].children[0].textContent === ""){
+                unoccupiedFields.push(i);
+            }
+        }
+        let randomSelection = unoccupiedFields[parseInt(Math.random() * unoccupiedFields.length)];
+        return randomSelection;
+    }
     return {
         getName,
         getColor,
         getSymbol,
-        setName
+        getIsBot,
+        setName,
+        randomCpuMove
     }
 });
 
 const displayController = (function(){
-    const player1 = playerFactory("Player1", "#F00", "x");
-    const player2 = playerFactory("Player2", "#00F", "o");
+    
     const startBtn = document.getElementById("play-btn");
+    const toggleBtn = document.getElementById("toggle-btn");
     const playerInput = document.getElementById("player-input");
-    console.log(playerInput);
-
+    let currentMode = 0;
     const setup = ()=> {
         setStartButtonText("Start");
-        startBtn.addEventListener("click", ()=>{
-            player1.setName(playerInput.children[0].value);
-            player2.setName(playerInput.children[1].value);
-            setStartButtonText("Restart");
-            gameController.startGame(player1, player2, gameBoard);
-            clearGameOverAlerts();
-        });
+        startBtn.addEventListener("click", startGame);
+        toggleBtn.addEventListener("click", displayCurrentMode);
+    }
+
+    const startGame = ()=>{
+        let player1;
+        let player2;
+        switch (currentMode){
+            case 0:
+                player1 = playerFactory(`${playerInput.children[0].value}`, "#F00", "x", false);
+                player2 = playerFactory(`${playerInput.children[2].value}`, "#00F", "o", false);
+                gameController.startGame(player1, player2, gameBoard);
+                break;
+            case 1:
+                player1 = playerFactory(`${playerInput.children[0].value}`, "#F00", "x", false);
+                player2 = playerFactory("CPU", "#000", "o", true);
+                gameController.startGame(player1, player2, gameBoard);
+            default:
+                break;
+        }
+        setStartButtonText("Restart"); 
+        clearGameOverAlerts();
+    }
+
+    const displayCurrentMode = () =>{
+        currentMode++;
+        currentMode %= 2;
+        switch(currentMode){
+            case 0:
+                playerInput.children[2].value = "Player2";
+                playerInput.children[2].disabled = false;
+                break;
+            case 1:
+                playerInput.children[2].value = "CPU";
+                playerInput.children[2].disabled = true;
+                break;
+            default:
+                break;
+        }
     }
 
     const setStartButtonText=(text)=>{

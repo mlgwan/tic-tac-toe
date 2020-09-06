@@ -1,3 +1,4 @@
+
 body{
     font-family: "Lucida Console",sans-serif;
 }
@@ -57,14 +58,30 @@ h1{
     transform: scale(1.1);
 }
 
+#toggle-btn{
+    font-size: 200%;
+    padding: 0 1%;
+    transition: 0.2s;
+    border-radius:12%;
+    outline: none;
+    border: none;
+}
+#toggle-btn:hover{
+    background-color: #444;
+    color: #eee;
+}
+#toggle-btn:active{
+    transform: scale(1.1);
+}
+
 #player-input{
     margin-bottom: 4%;
     text-align: center;
 
 }
 #player-input input{
-    margin-right: 11%;
-    margin-left: 11%;
+    margin-right: 5%;
+    margin-left: 5%;
     font-size: 150%;
     display: inline-block;
     text-align: center;
