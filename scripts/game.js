@@ -5,6 +5,7 @@ const gameBoard = (function(){
     const boardSize = 9;
     const boardWidth = Math.sqrt(boardSize);
     let emptyFields;
+    const fields = Array.from(document.querySelectorAll(".field"));
 
     const boardElement = Array.from(document.getElementById("board").children);
 
@@ -63,8 +64,19 @@ const gameBoard = (function(){
     const decrementEmptyFields = ()=>{
         emptyFields--;
     }
+    const getFields = ()=>{
+        return fields;
+    }
+
+    const initFields = () =>{
+        fields.forEach((field, index) => {
+            field.addEventListener("click",()=> gameController.fieldClicked(field, index));
+        })
+    }
 
     return {
+        getFields,
+        initFields,
         getBoard,
         setBoard,
         render,
@@ -78,57 +90,84 @@ const gameController = (function(){
 
     let currentPlayer;
     let finishedGame;
+    let cpu;
+    let players = [];
 
-    const startGame = (player1, player2, board)=>{
-
-        currentPlayer = 0;
-        finishedGame = false;
-        const fields = Array.from(document.querySelectorAll(".field"));
-        const players = [player1, player2];
-        board.initBoard();
-        board.render();
-
-        if (!player2.getIsBot()){
-
-            fields.forEach((field, index)=>{
-                field.addEventListener("click", ()=>markField(field, board, players[currentPlayer], index));
-            });
+    const fieldClicked = (field, index) =>{
+        if(cpu){
+            markField(field, players[0], index);
+            cpuMove();
         }
         else{
-            if (player2.getName() === "CPU"){
-                fields.forEach((field, index)=>{
-                    field.addEventListener("click", ()=>{
-                        markField(field, board, players[0], index);
-                        markField(field, board, players[1], players[1].randomCpuMove(fields))});
-                });
-            }
+            markField(field, players[currentPlayer], index);
         }
-
     }
 
-    const markField = (field, board, player, index) =>{
-        if (board.getBoard()[index] === "" && !finishedGame){
-            board.setBoard(player.getSymbol(), index);
-            board.render();
-            board.decrementEmptyFields();
+    const startGame = (player1, player2)=>{
+        currentPlayer = 0;
+        finishedGame = false;
+        players.push(player1);
+        players.push(player2);
+        gameBoard.initBoard();
+        gameBoard.render();
+
+        if (player2.getIsBot()){
+            cpu = player2;
+        }
+
+        else {
+            cpu = false;
+        }
+        
+    }
+
+    const markField = (field, player, index) =>{
+        if (gameBoard.getBoard()[index] === "" && !finishedGame){
+            gameBoard.setBoard(player.getSymbol(), index);
+            gameBoard.render();
+            gameBoard.decrementEmptyFields();
             field.children[0].style.color = player.getColor();
-            if(board.checkForGameOver() === "win"){
-                displayController.displayGameOver(player);
-                finishedGame = true;
-                displayController.setup();
-            }
-            else if (board.checkForGameOver() === "draw"){
-                displayController.displayGameOver();
-                finishedGame = true;
-                displayController.setup();
-            }
+            checkForGameOver(player);
             currentPlayer++;
             currentPlayer%=2;
         }
     }
 
+    const cpuMove = () =>{
+        if (!finishedGame){
+            let index = cpu.randomCpuMove(gameBoard.getFields());
+            let field = gameBoard.getFields()[index];
+            gameBoard.setBoard(cpu.getSymbol(), index);
+            gameBoard.render();
+            gameBoard.decrementEmptyFields();
+            field.children[0].style.color = cpu.getColor();
+            checkForGameOver(cpu);
+            currentPlayer++;
+            currentPlayer%=2;
+        }
+        
+    }
+
+    const checkForGameOver = (player) => {
+        if (!finishedGame)
+        {
+            if(gameBoard.checkForGameOver() === "win"){
+            displayController.displayGameOver(player);
+            finishedGame = true;
+            displayController.setup();
+            }
+            else if (gameBoard.checkForGameOver() === "draw"){
+                displayController.displayGameOver();
+                finishedGame = true;
+                displayController.setup();
+            }
+        }
+        
+    }
+
     return {
-        startGame
+        startGame,
+        fieldClicked
     }
 })();
 
@@ -193,20 +232,24 @@ const displayController = (function(){
     }
 
     const displayCurrentMode = () =>{
+        console.log("hi");
         currentMode++;
         currentMode %= 2;
         switch(currentMode){
             case 0:
                 playerInput.children[2].value = "Player2";
                 playerInput.children[2].disabled = false;
+
                 break;
             case 1:
                 playerInput.children[2].value = "CPU";
                 playerInput.children[2].disabled = true;
+
                 break;
             default:
                 break;
         }
+        console.log(currentMode);
     }
 
     const setStartButtonText=(text)=>{
@@ -244,5 +287,6 @@ const displayController = (function(){
 
 })();
 
+gameBoard.initFields();
 
 displayController.setup();
